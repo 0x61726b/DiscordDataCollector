@@ -6,11 +6,11 @@ from peewee import *
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-handler = logging.FileHandler(filename='mmd.log', encoding='utf-8', mode='w')
+handler = logging.FileHandler(filename='satoshi.log', encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-db = SqliteDatabase('metal_music_discord.db')
+db = SqliteDatabase('satoshi.db')
 
 class Presence():
     def __init__(self):
@@ -119,6 +119,12 @@ def add_message_to_db(message):
     except Exception as error:
         logger.debug("Message.create failed. Probably due to primary key already existing. {}".format(error))
 
+@client.event
+async def on_member_join(member):
+    logger.info("New member join!")
+
+    add_user_to_db(member)
+
 
 @client.event
 async def on_ready():
@@ -148,7 +154,10 @@ async def on_message(message):
 
 
 db.connect()
-#db.drop_tables([User])
-#db.create_tables([ User, Channel, Message ])
+db.create_tables([ User, Channel, Message ])
 
-client.run('token here')
+with open("token", "r") as tokenfile:
+    token = ""
+    for line in tokenfile:
+        token += line
+    client.run('MzE1Nzk1NzQ2MjQ5MTEzNjEx.DAL7mA.YIgKn1IL3_ThTE-HpoejHjra3GI')
