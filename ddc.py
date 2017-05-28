@@ -160,4 +160,4 @@ with open("token", "r") as tokenfile:
     token = ""
     for line in tokenfile:
         token += line
-    client.run('MzE1Nzk1NzQ2MjQ5MTEzNjEx.DAL7mA.YIgKn1IL3_ThTE-HpoejHjra3GI')
+    client.run(token)
