@@ -1,5 +1,5 @@
 from peewee import *
-db = SqliteDatabase('satoshi.db')
+db = SqliteDatabase('metal_music_discord.db')
 
 class User(Model):
     discord_id = IntegerField(primary_key=True)
