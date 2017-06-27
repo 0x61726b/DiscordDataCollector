@@ -2,6 +2,7 @@ import discord
 import asyncio
 import logging
 from database import *
+from to_es import *
 import os
 
 logging.basicConfig(level=logging.INFO)
@@ -89,7 +90,8 @@ def add_message_to_db(message):
     logger.info("New message: {} {} {} {} {}".format(user_id, user.name, user.display_name, channel.name, content))
 
     try:
-        Message.create(message_id=message_id,content=content,user=user, channel=channel, date=date,has_mentions=has_mentions,is_pinned=is_pinned)
+        message = Message.create(message_id=message_id,content=content,user=user, channel=channel, date=date,has_mentions=has_mentions,is_pinned=is_pinned)
+        add_message_count(message)
     except Exception as error:
         logger.debug("Message.create failed. Probably due to primary key already existing. {}".format(error))
 
