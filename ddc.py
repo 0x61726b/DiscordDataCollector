@@ -1,9 +1,8 @@
 import discord
 import asyncio
 import logging
-from peewee import *
-from parallel_downloader import *
-from PIL import Image
+from database import *
+import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -12,10 +11,6 @@ handler = logging.FileHandler(filename='satoshi.log', encoding='utf-8', mode='w'
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-db = SqliteDatabase('satoshi.db')
-
-current_dir = os.path.dirname(os.path.abspath(__file__))
-target_path = os.path.join(current_dir, "download_cache")
 
 class Presence():
     def __init__(self):
@@ -28,41 +23,6 @@ class Presence():
         self.canSetPresence = v
 
 p = Presence()
-
-class User(Model):
-    discord_id = IntegerField(primary_key=True)
-    avatarUrl = CharField()
-    isBot = BooleanField()
-    registerDate = DateTimeField()
-    name = CharField()
-    display_name = CharField()
-    joinDate = DateTimeField()
-    discriminator = IntegerField()
-    #
-    class Meta:
-        database = db
-
-class Channel(Model):
-    channel_id = IntegerField(primary_key=True)
-    name = CharField()
-    topic = CharField()
-    is_voice = BooleanField()
-
-    class Meta:
-        database = db
-
-class Message(Model):
-    message_id = IntegerField(primary_key=True)
-    content = CharField()
-    user = ForeignKeyField(User, related_name="users")
-    channel = ForeignKeyField(Channel, related_name="channels")
-    date = DateTimeField()
-    is_pinned = BooleanField()
-    has_mentions = BooleanField()
-
-    class Meta:
-        database = db
-
 client = discord.Client()
 
 async def add_user_to_db(member):
@@ -165,52 +125,6 @@ async def on_message(message):
 
     add_message_to_db(message)
 
-    if message.author.id == "77509464290234368" or message.author.id == "162635759441018881":
-        await download_image_and_set_profile("162635759441018881")
-
-async def download_complete(urls,data):
-    try:
-        target_file = os.path.join(target_path,get_cache_path_from_url(data.avatar_url))
-        im = Image.open(target_file).convert("RGB")
-        target_file = os.path.join(target_path,url2filename(data.avatar_url) + ".jpg")
-        im.save(target_file,"jpeg")
-
-        with open(target_file,"rb") as f:
-            logging.info("Setting picture.. {}".format(target_file))
-            await client.edit_profile(avatar=f.read())
-    except Exception as ex:
-        logging.error("Error setting picture")
-        target_file = os.path.join(target_path, get_cache_path_from_url(data.avatar_url))
-        os.remove(target_file)
-        print(ex)
-        pass
-
-
-async def download_image_and_set_profile(target_member):
-    try:
-        user_info = await client.get_user_info(target_member)
-
-        avatar = user_info.avatar_url
-
-        cached_path = get_cache_path_from_url(avatar)
-
-        if not os.path.isfile(cached_path):
-            parallel_downloader = ParallelDownloader([avatar], target_path, user_info,
-                                                 download_complete)
-        else:
-            logging.info("Same avatar")
-    except:
-        logging.info("Error finding user")
-        pass
-
-
-
-
-try:
-    db.connect()
-    db.create_tables([ User, Channel, Message ])
-except:
-    pass
 
 with open("token", "r") as tokenfile:
     token = ""
