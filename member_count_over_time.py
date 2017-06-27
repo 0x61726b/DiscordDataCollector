@@ -4,7 +4,7 @@ from peewee import *
 import datetime
 import random
 
-db = SqliteDatabase('metal_music_discord.db')
+db = SqliteDatabase('../ddc_data/aat/satoshi.db')
 
 class User(Model):
     discord_id = IntegerField(primary_key=True)

@@ -2,6 +2,8 @@ import discord
 import asyncio
 import logging
 from peewee import *
+from parallel_downloader import *
+from PIL import Image
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -11,6 +13,9 @@ handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(me
 logger.addHandler(handler)
 
 db = SqliteDatabase('satoshi.db')
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+target_path = os.path.join(current_dir, "download_cache")
 
 class Presence():
     def __init__(self):
@@ -93,9 +98,10 @@ def add_channel_to_db(channel):
     logger.info("Adding new channel to DB {} {}".format(channel_id,channel_name))
 
     try:
-        Channel.create(channel_id=int(channel_id),name=channel_name,topic=topic,is_voice=is_voice)
+        return Channel.create(channel_id=int(channel_id),name=channel_name,topic=topic,is_voice=is_voice)
     except Exception as error:
         logger.info("Channel.create failed. {}".format(error))
+        return None
 
 def add_message_to_db(message):
     content = message.content
@@ -107,7 +113,15 @@ def add_message_to_db(message):
     is_pinned = message.pinned
 
     user = User.select().where(User.discord_id==user_id).get()
-    channel = Channel.select().where(Channel.channel_id==channel_id).get()
+    try:
+        channel = Channel.select().where(Channel.channel_id==channel_id).get()
+    except:
+        logger.info("Could not find channel. Adding")
+        channel = add_channel_to_db(message.channel)
+        if channel is None:
+            logger.error("Channel error")
+            return
+
 
     if len(message.mentions) != 0:
         has_mentions = True
@@ -151,10 +165,52 @@ async def on_message(message):
 
     add_message_to_db(message)
 
+    if message.author.id == "77509464290234368" or message.author.id == "162635759441018881":
+        await download_image_and_set_profile("162635759441018881")
+
+async def download_complete(urls,data):
+    try:
+        target_file = os.path.join(target_path,get_cache_path_from_url(data.avatar_url))
+        im = Image.open(target_file).convert("RGB")
+        target_file = os.path.join(target_path,url2filename(data.avatar_url) + ".jpg")
+        im.save(target_file,"jpeg")
+
+        with open(target_file,"rb") as f:
+            logging.info("Setting picture.. {}".format(target_file))
+            await client.edit_profile(avatar=f.read())
+    except Exception as ex:
+        logging.error("Error setting picture")
+        target_file = os.path.join(target_path, get_cache_path_from_url(data.avatar_url))
+        os.remove(target_file)
+        print(ex)
+        pass
 
 
-db.connect()
-db.create_tables([ User, Channel, Message ])
+async def download_image_and_set_profile(target_member):
+    try:
+        user_info = await client.get_user_info(target_member)
+
+        avatar = user_info.avatar_url
+
+        cached_path = get_cache_path_from_url(avatar)
+
+        if not os.path.isfile(cached_path):
+            parallel_downloader = ParallelDownloader([avatar], target_path, user_info,
+                                                 download_complete)
+        else:
+            logging.info("Same avatar")
+    except:
+        logging.info("Error finding user")
+        pass
+
+
+
+
+try:
+    db.connect()
+    db.create_tables([ User, Channel, Message ])
+except:
+    pass
 
 with open("token", "r") as tokenfile:
     token = ""
