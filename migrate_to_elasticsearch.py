@@ -1,3 +1,3 @@
 from to_es import *
 
-put_messages_to_es()
+put_words_to_es()
