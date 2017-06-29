@@ -26,6 +26,7 @@ def add_message_count(message):
         print("Error trying to send data to ES")
         print(error)
 
+total_word_count = 0
 def add_words(message):
     timestamp = (int((message.date - datetime.datetime(1970, 1, 1)).total_seconds()))
 
@@ -36,9 +37,10 @@ def add_words(message):
         headers = {'Content-Type': 'application/json'}
         data = json.dumps(json_str)
         try:
-            response = requests.put("{}{}".format(ES_SERVER_WORDS, message.message_id), data, headers=headers)
-            print("Added {} {} {}".format(timestamp, message.message_id, word))
+            response = requests.put("{}{}".format(ES_SERVER_WORDS, total_word_count), data, headers=headers)
+            print("Added {} {} {}".format(timestamp, total_word_count, word))
             print(response.status_code)
+            total_word_count = total_word_count + 1
         except Exception as error:
             print("Error trying to send data to ES")
             print(error)
