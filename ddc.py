@@ -65,7 +65,7 @@ def add_channel_to_db(channel):
         logger.info("Channel.create failed. {}".format(error))
         return None
 
-def add_message_to_db(message):
+async def add_message_to_db(message):
     content = message.content
     message_id = int(message.id)
     user_id = int(message.author.id)
@@ -78,7 +78,7 @@ def add_message_to_db(message):
         user = User.select().where(User.discord_id==user_id).get()
     except:
         logger.info("Could not find user. Adding")
-        user = add_user_to_db(message.author)
+        user = await add_user_to_db(message.author)
         if user is None:
             return
     try:
@@ -132,7 +132,7 @@ async def on_message(message):
         await client.change_presence(game=discord.Game(name='Building Skynet...'))
         p.setPresence(False)
 
-    add_message_to_db(message)
+    await add_message_to_db(message)
 
 
 with open("token", "r") as tokenfile:
