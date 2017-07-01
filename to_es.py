@@ -82,8 +82,8 @@ def add_message_count(message):
             i = 0
             for match in matches:
                 index = message.message_id
-                index = "{}_{}".format(index, i)
-                add_emoji(message, emoji, index)
+                index = "{}{}".format(index, i)
+                add_emoji(message, emoji, int(index))
                 i = i + 1
 
     # message count stuff
