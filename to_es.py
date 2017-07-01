@@ -8,6 +8,27 @@ ES_SERVER_MESSAGECOUNT = "http://40.121.158.220:9200/discord_reindex/discord_mes
 ES_SERVER_COMMANDS = "http://40.121.158.220:9200/discord_command/discord_command_count/"
 ES_SERVER_WORDS = "http://40.121.158.220:9200/discord_words/word_type/"
 
+def add_emoji(message, emoji):
+    timestamp = (int((message.date - datetime.datetime(1970, 1, 1)).total_seconds()))
+
+    json_str = {"timestamp": timestamp,
+                "message_id": message.message_id,
+                "emoji": emoji,
+                "command_count":1,
+                "channel": message.channel.name,
+                "author": message.user.name
+                }
+    headers = {'Content-Type': 'application/json'}
+    data = json.dumps(json_str)
+    print(data)
+    # try:
+    #     response = requests.put("{}{}".format(ES_SERVER_COMMANDS, message.message_id), data, headers=headers)
+    #     if response.status_code == 201 or response.status_code == 200:
+    #         print("ES Successful {}".format(response.status_code))
+    # except Exception as error:
+    #     print("Error trying to send data to ES")
+    #     print(error)
+
 def add_command(message,command):
     timestamp = (int((message.date - datetime.datetime(1970, 1, 1)).total_seconds()))
 
@@ -30,6 +51,17 @@ def add_command(message,command):
 
 def add_message_count(message):
     timestamp = (int((message.date - datetime.datetime(1970, 1, 1)).total_seconds()))
+
+    prefix = ["!", "~"]
+
+    message_content = message.content
+    for p in prefix:
+        if not message_content.startswith(p):
+            continue
+        command, *args = message_content.split()
+        command = command[len(p):].lower().strip()
+
+        add_command(message, command)
 
     json_str = { "timestamp": timestamp,
                  "message_id": message.message_id,
@@ -103,4 +135,16 @@ def put_commands_to_es():
 
             add_command(message, command)
 
-put_commands_to_es()
+# def put_emojis_to_es():
+#     messages = get_all_messages()
+#
+#     emojis = ["FeelsMetalMan", "goldMetal", "petaLUL", "PogChamp", "puke", "Eargasm", "EleGiggle", "FeelsBadMan", "FeelsRageMan", "FeelsBlackMetal", "FeelsCoreMan",
+#               "FeelsLongHaired","FeelsCorpsePaint", "FeelsBleagh", "FeelsProgMan", "FeelsMetalHead", "thinkmetal", "fedora", "trump1", "nm", "suicide", "slamslug", "arkhammer", "uberthink", "nerdal", "rip",
+#               "thangery", "thunking", "grindgoat", "CoreWeekly", "CoreYearly", "pukethink1", "FeelsSubLevel", "genrepolice", "FeelsAmazingMan", "FailFish", "WutFace", "FeelsWeebMan", "FeelsTootMan", "CoreEternity", "FeelsNargaMan", "hmm", "glamslug", "FeelsCossackMan", "boing", "cutyou", "FeelsToneMan"]
+#     for message in messages:
+#         message_content = message.content
+#
+#         for emoji in emojis:
+#             str = "<:{}".format(emoji)
+#
+#             if str in
