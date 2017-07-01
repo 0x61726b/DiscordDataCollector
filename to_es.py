@@ -4,8 +4,9 @@ import requests
 import json
 
 #KAIROS_SERVER = "http://localhost:8000"
-ES_SERVER_MESSAGECOUNT = "http://127.0.0.1:9200/discord/discord_message_count/"
-ES_SERVER_WORDS = "http://127.0.0.1:9200/discord_words/word_type/"
+ES_SERVER_MESSAGECOUNT = "http://40.121.158.220:9200/discord_reindex/discord_message_count/"
+ES_SERVER_WORDS = "http://40.121.158.220:9200/discord_words/word_type/"
+
 def add_message_count(message):
     timestamp = (int((message.date - datetime.datetime(1970, 1, 1)).total_seconds()))
 
@@ -20,8 +21,8 @@ def add_message_count(message):
     data = json.dumps(json_str)
     try:
         response = requests.put("{}{}".format(ES_SERVER_MESSAGECOUNT, message.message_id), data, headers= headers)
-        print("Added {} {}".format(timestamp, message.message_id))
-        print(response.status_code)
+        # if response.status_code == 201 or response.status_code == 200:
+        #     print("ES Successful {}".format(response.status_code))
     except Exception as error:
         print("Error trying to send data to ES")
         print(error)

@@ -39,9 +39,10 @@ async def add_user_to_db(member):
     logger.info("Adding new user to DB {} {} {} {} {} {} {} {}".format(member.id,name,display_name,join_date,created_at,isBot,avatar_url,discriminator))
 
     try:
-        User.create(discord_id=int(member.id),avatarUrl=avatar_url,isBot=isBot,registerDate=created_at,discriminator=discriminator,display_name=display_name,name=name,joinDate=join_date)
+        return User.create(discord_id=int(member.id),avatarUrl=avatar_url,isBot=isBot,registerDate=created_at,discriminator=discriminator,display_name=display_name,name=name,joinDate=join_date)
     except Exception as error:
         logger.debug("User.create failed. Probably due to primary key already existing. {}".format(error))
+        return None
 
 
 def add_channel_to_db(channel):
@@ -73,7 +74,13 @@ def add_message_to_db(message):
     has_mentions = False
     is_pinned = message.pinned
 
-    user = User.select().where(User.discord_id==user_id).get()
+    try:
+        user = User.select().where(User.discord_id==user_id).get()
+    except:
+        logger.info("Could not find user. Adding")
+        user = add_user_to_db(message.author)
+        if user is None:
+            return
     try:
         channel = Channel.select().where(Channel.channel_id==channel_id).get()
     except:
