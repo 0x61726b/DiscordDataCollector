@@ -3,12 +3,13 @@ import datetime
 import requests
 import json
 import re
+from config import *
 
 #KAIROS_SERVER = "http://localhost:8000"
-ES_SERVER_MESSAGECOUNT = "http://40.121.158.220:9200/discord_reindex/discord_message_count/"
-ES_SERVER_COMMANDS = "http://40.121.158.220:9200/discord_command/discord_command_count/"
-ES_SERVER_EMOJI = "http://40.121.158.220:9200/discord_emoji/discord_emoji_count/"
-ES_SERVER_WORDS = "http://40.121.158.220:9200/discord_words/word_type/"
+ES_SERVER_MESSAGECOUNT = ES_SERVER + ES_INDEX_MESSAGECOUNT
+ES_SERVER_COMMANDS = ES_SERVER + ES_INDEX_COMMANDS
+ES_SERVER_EMOJI = ES_SERVER + ES_INDEX_EMOJI
+ES_SERVER_WORDS = ES_SERVER + ES_INDEX_WORDS
 
 def add_emoji(message, emoji, index_id):
     timestamp = (int((message.date - datetime.datetime(1970, 1, 1)).total_seconds()))
@@ -22,8 +23,6 @@ def add_emoji(message, emoji, index_id):
                 }
     headers = {'Content-Type': 'application/json'}
     data = json.dumps(json_str)
-    print(data)
-    print(index_id)
     try:
         response = requests.put("{}{}".format(ES_SERVER_EMOJI, index_id), data, headers=headers)
         if response.status_code == 201 or response.status_code == 200:
@@ -66,25 +65,26 @@ def add_message_count(message):
 
         add_command(message, command)
 
-    # Check emojis
-    emojis = ["FeelsMetalMan", "goldMetal", "petaLUL", "PogChamp", "puke", "Eargasm", "EleGiggle", "FeelsBadMan",
-              "FeelsRageMan", "FeelsBlackMetal", "FeelsCoreMan",
-              "FeelsLongHaired", "FeelsCorpsePaint", "FeelsBleagh", "FeelsProgMan", "FeelsMetalHead", "thinkmetal",
-              "fedora", "trump1", "nm", "suicide", "slamslug", "arkhammer", "uberthink", "nerdal", "rip",
-              "thangery", "thunking", "grindgoat", "CoreWeekly", "CoreYearly", "pukethink1", "FeelsSubLevel",
-              "genrepolice", "FeelsAmazingMan", "FailFish", "WutFace", "FeelsWeebMan", "FeelsTootMan", "CoreEternity",
-              "FeelsNargaMan", "hmm", "glamslug", "FeelsCossackMan", "boing", "cutyou", "FeelsToneMan"]
-    for emoji in emojis:
-        str = "<:{}".format(emoji)
+    if CHECK_EMOJI:
+        # Check emojis
+        emojis = ["FeelsMetalMan", "goldMetal", "petaLUL", "PogChamp", "puke", "Eargasm", "EleGiggle", "FeelsBadMan",
+                  "FeelsRageMan", "FeelsBlackMetal", "FeelsCoreMan",
+                  "FeelsLongHaired", "FeelsCorpsePaint", "FeelsBleagh", "FeelsProgMan", "FeelsMetalHead", "thinkmetal",
+                  "fedora", "trump1", "nm", "suicide", "slamslug", "arkhammer", "uberthink", "nerdal", "rip",
+                  "thangery", "thunking", "grindgoat", "CoreWeekly", "CoreYearly", "pukethink1", "FeelsSubLevel",
+                  "genrepolice", "FeelsAmazingMan", "FailFish", "WutFace", "FeelsWeebMan", "FeelsTootMan", "CoreEternity",
+                  "FeelsNargaMan", "hmm", "glamslug", "FeelsCossackMan", "boing", "cutyou", "FeelsToneMan"]
+        for emoji in emojis:
+            str = "<:{}".format(emoji)
 
-        matches = [m.start() for m in re.finditer(str, message_content)]
-        if len(matches) > 0:
-            i = 0
-            for match in matches:
-                index = message.message_id
-                index = "{}{}".format(index, i)
-                add_emoji(message, emoji, int(index))
-                i = i + 1
+            matches = [m.start() for m in re.finditer(str, message_content)]
+            if len(matches) > 0:
+                i = 0
+                for match in matches:
+                    index = message.message_id
+                    index = "{}{}".format(index, i)
+                    add_emoji(message, emoji, int(index))
+                    i = i + 1
 
     # message count stuff
     json_str = { "timestamp": timestamp,

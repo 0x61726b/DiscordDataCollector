@@ -1,5 +1,6 @@
 from peewee import *
-db = SqliteDatabase('metal_music_discord.db')
+from config import *
+db = SqliteDatabase(DB_FILE + '.db')
 
 class User(Model):
     discord_id = IntegerField(primary_key=True)
