@@ -124,7 +124,7 @@ async def data_future(i_channel_name, before):
         if channel.name == i_channel_name:
             print("Channel: {}".format(channel.name))
             try:
-                async for message in client.logs_from(channel, limit=fetch_limit, after=before):
+                async for message in client.logs_from(channel, limit=fetch_limit, before=before):
                     count = count + 1
                     message_list.append(message)
                     if count % 1000:
@@ -157,19 +157,15 @@ async def data_future(i_channel_name, before):
 @client.event
 async def on_ready():
     logger.info("Bot is ready.")
-    before_date = datetime.datetime(2017,6,30)
-    channels = ["info", "announcements", "general", "black",
-                "death", "core", "heavy", "doom", "alt", "grind", "prog",
-                "melodic", "thrash", "brutal", "weekly-discussion", "music-bot",
-                "cytube", "merch", "oc", "non-metal", "off-topic", "gaming", "weeb", "shitposting", "mod", "suggestion-box"]
+    before_date = datetime.datetime(2017,7,18)
 
 
-    tasks =  [data_future("weekly-discussion",before_date)]
+    tasks =  [data_future("general-chat",before_date)]
     asyncio.ensure_future(asyncio.gather(*tasks))
 
 
 
-with open("token_stats", "r") as tokenfile:
+with open("token", "r") as tokenfile:
     token = ""
     for line in tokenfile:
         token += line
