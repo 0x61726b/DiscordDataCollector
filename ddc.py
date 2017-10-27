@@ -154,8 +154,11 @@ async def random_message_background():
         random_msg = message_array[random_nmb]
         if random_msg:
             content = random_msg.content
-            content = "```css\n[{}/{}] <{}> {}```".format(random_nmb, len_messages, random_msg.user.display_name, content)
-            await client.send_message(channel, content)
+            user_id = random_msg.user.discord_id
+            user_info = await client.get_user_info(user_id)
+            if user_info:
+                content = "```css\n[{}/{}] <{}> {}```".format(random_nmb, len_messages, user_info.display_name, content)
+                await client.send_message(channel, content)
         await asyncio.sleep(60 * 60)
 
 
