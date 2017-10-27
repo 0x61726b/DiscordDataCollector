@@ -40,5 +40,7 @@ class Message(Model):
 try:
     db.connect()
     db.create_tables([ User, Channel, Message ])
+    print("DB OK!")
 except:
+    print("DB Not OK but still fine!")
     pass

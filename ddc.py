@@ -4,6 +4,7 @@ import logging
 from database import *
 from to_es import *
 import os
+from random import randint
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -125,6 +126,9 @@ async def on_ready():
         for channel in client.get_all_channels():
             add_channel_to_db(channel)
 
+
+
+
 @client.event
 async def on_message(message):
     if p.presence():
@@ -135,8 +139,29 @@ async def on_message(message):
     await add_message_to_db(message)
 
 
+message_array = []
+messages = Message.select().order_by(Message.date).where(Message.date < datetime.datetime(2017,9,1))
+
+for message in messages:
+    message_array.append(message)
+
+async def random_message_background():
+    await client.wait_until_ready()
+    channel = client.get_channel('327792400527261696')
+    while not client.is_closed:
+        len_messages = len(message_array)
+        random_nmb = randint(0, len_messages - 1)
+        random_msg = message_array[random_nmb]
+        if random_msg:
+            content = random_msg.content
+            content = "```css\n[{}/{}] <{}> {}```".format(random_nmb, len_messages, random_msg.user.display_name, content)
+            await client.send_message(channel, content)
+        await asyncio.sleep(60 * 60)
+
+
 with open("token", "r") as tokenfile:
     token = ""
     for line in tokenfile:
         token += line
+    client.loop.create_task(random_message_background())
     client.run(token)
