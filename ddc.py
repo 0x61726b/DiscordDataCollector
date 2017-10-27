@@ -140,7 +140,7 @@ async def on_message(message):
 
 
 message_array = []
-messages = Message.select().order_by(Message.date).where(Message.channel.id != "349160726029533186")
+messages = Message.select().order_by(Message.date).where(Message.channel.channel_id != "349160726029533186")
 
 for message in messages:
     message_array.append(message)
