@@ -148,6 +148,7 @@ for message in messages:
 async def random_message_background():
     await client.wait_until_ready()
     channel = client.get_channel('327792400527261696')
+    time_limit = 60 * 60 * 3
     while not client.is_closed:
         len_messages = len(message_array)
         random_nmb = randint(0, len_messages - 1)
@@ -159,7 +160,7 @@ async def random_message_background():
             if user_info:
                 content = "```css\n[{}/{}] <{}> {}```".format(random_nmb, len_messages, user_info.display_name, content)
                 await client.send_message(channel, content)
-        await asyncio.sleep(60 * 60)
+        await asyncio.sleep(time_limit)
 
 
 with open("token", "r") as tokenfile:
