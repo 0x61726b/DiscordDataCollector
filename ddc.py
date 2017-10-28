@@ -53,7 +53,7 @@ class DDC(discord.Client):
                 random_nmb = randint(0, len_messages - 1)
                 random_msg = message_array[random_nmb]
                 if random_msg:
-                    if "<:" in random_msg.content or len(random_msg.content) < 50 or "<@" in random_msg.content or "://" in random_msg.content:
+                    if "<:" in random_msg.content or len(random_msg.content) < 50 or "<@" in random_msg.content or "://" in random_msg.content or len(random_msg.content) > 1000:
                         unqualified = True
                     else:
                         unqualified = False
@@ -74,15 +74,20 @@ class DDC(discord.Client):
         except:
             return ""
 
-    async def cmd_q(self, channel, user_name):
+    async def cmd_q(self, message, channel):
         try:
+            split = message.content.split('{}{} '.format(PREFIX, 'q'))
+
+            user_name = split[1]
+            print(user_name)
+
             clients = self.get_all_members()
             target_client = None
             for client in clients:
                 id = client.id
                 name = client.name
 
-                if name == user_name:
+                if name.lower() == user_name.lower():
                     target_client = client
             if target_client:
                 random_msg = await self.get_random_message(target_client.id)
