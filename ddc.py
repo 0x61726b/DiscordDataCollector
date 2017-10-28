@@ -126,25 +126,39 @@ class DDC(discord.Client):
             if last_message_user is not None and last_message_user.id == BOT_CLIENT_ID:
                 should_post = False
 
+            print(should_post)
             if should_post:
                 users = User.select()
                 users_array = []
                 interval = RANDOM_QUOTE_INTERVAL
+                last_message_time = datetime.datetime.now()
+                should_post = False
 
-                for user in users:
-                    users_array.append(user)
-                users_len = len(users_array)
-                random_user_index = randint(0, users_len - 1)
-                random_user = users_array[random_user_index]
-                if random_user and random_user.discord_id != BOT_CLIENT_ID:
-                    try:
-                        random_msg = await self.get_random_message(random_user.name)
-                        if len(random_msg) > 0:
-                            await self.send_message(channel, random_msg)
+                try:
+                    for user in users:
+                        users_array.append(user)
+
+                    users_len = len(users_array)
+                    random_user_index = randint(0, users_len - 1)
+                    random_user = users_array[random_user_index]
+                    if random_user and random_user.discord_id != BOT_CLIENT_ID:
+                        try:
+                            random_msg = await self.get_random_message(random_user.discord_id)
+                            if len(random_msg) > 0:
+                                await self.send_message(channel, random_msg)
+                                await asyncio.sleep(5)
+                                print("Posting")
+                            else:
+                                print("Sleeping 4")
+                                await asyncio.sleep(5)
+                        except:
+                            print("Sleeping 1")
                             await asyncio.sleep(5)
-                    except:
-                        pass
+                except:
+                    print("Sleeping 2")
+                    await asyncio.sleep(5)
             else:
+                print("Sleeping 3")
                 await asyncio.sleep(5)
 
 
