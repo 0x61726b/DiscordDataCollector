@@ -74,7 +74,7 @@ class DDC(discord.Client):
         except:
             return ""
 
-    async def cmd_aq(self, channel, user_name):
+    async def cmd_q(self, channel, user_name):
         try:
             clients = self.get_all_members()
             target_client = None
