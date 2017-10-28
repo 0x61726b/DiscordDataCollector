@@ -74,7 +74,7 @@ class DDC(discord.Client):
         except:
             return ""
 
-    async def cmd_q(self, channel, user_name):
+    async def cmd_aq(self, channel, user_name):
         try:
             random_msg = await self.get_random_message(user_name)
             if len(random_msg) > 0:
