@@ -82,11 +82,8 @@ class DDC(discord.Client):
                 id = client.id
                 name = client.name
 
-                print("{} {}".format(id, name))
-
                 if name == user_name:
                     target_client = client
-            print(target_client)
             if target_client:
                 random_msg = await self.get_random_message(target_client.id)
                 if len(random_msg) > 0:
