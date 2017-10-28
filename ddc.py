@@ -6,7 +6,9 @@ from to_es import *
 import os
 import sys
 import inspect
+import random
 from random import randint
+random.seed(8088)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -53,7 +55,7 @@ class DDC(discord.Client):
                 random_nmb = randint(0, len_messages - 1)
                 random_msg = message_array[random_nmb]
                 if random_msg:
-                    if "<:" in random_msg.content or len(random_msg.content) < 50 or "<@" in random_msg.content or "://" in random_msg.content or len(random_msg.content) > 1000:
+                    if "<:" in random_msg.content or len(random_msg.content) < 50 or "<@" in random_msg.content or "://" in random_msg.content or len(random_msg.content) > 1000 or "```" in random_msg.content:
                         unqualified = True
                     else:
                         unqualified = False
@@ -112,10 +114,12 @@ class DDC(discord.Client):
             qsize = self.queue.qsize()
 
             if qsize != 0:
-                message_state = await self.queue.get()
-                if message_state:
-                    last_message_time = message_state.time
-                    last_message_user = message_state.user
+                while qsize is not 0:
+                    message_state = await self.queue.get()
+                    if message_state:
+                        last_message_user = message_state.user
+
+                    qsize = self.queue.qsize()
 
             now = datetime.datetime.now()
             diff = now - last_message_time
