@@ -74,7 +74,7 @@ class DDC(discord.Client):
         except:
             return ""
 
-    async def cmd_q(self, message, channel):
+    async def cmd_aq(self, message, channel):
         try:
             split = message.content.split('{}{} '.format(PREFIX, 'q'))
             user_name = split[1]
