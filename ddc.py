@@ -35,9 +35,9 @@ class DDC(discord.Client):
 
         self.queue = asyncio.Queue()
 
-    async def get_random_message(self, user_name):
+    async def get_random_message(self, client_id):
         try:
-            target_user = User.select().where(User.name == user_name).get()
+            target_user = User.select().where(User.discord_id == client_id).get()
             message_array = []
             messages = Message.select().order_by(Message.date).where((Message.channel != EXCLUDE_CHANNEL_ID),(Message.user == target_user.discord_id))
             for message in messages:
@@ -76,13 +76,25 @@ class DDC(discord.Client):
 
     async def cmd_aq(self, channel, user_name):
         try:
-            random_msg = await self.get_random_message(user_name)
-            if len(random_msg) > 0:
-                await self.send_message(channel, random_msg)
-            else:
-                await self.send_message(channel, EMOJI_ON_FAIL)
+            clients = self.get_all_members()
+            target_client = None
+            for client in clients:
+                id = client.id
+                name = client.name
+
+                print("{} {}".format(id, name))
+
+                if name == user_name:
+                    target_client = client
+            print(target_client)
+            if target_client:
+                random_msg = await self.get_random_message(target_client.id)
+                if len(random_msg) > 0:
+                    await self.send_message(channel, random_msg)
+                else:
+                    await self.send_message(channel, EMOJI_ON_FAIL)
         except:
-            await self.send_message(channel, EMOJI_ON_FAIL)
+            pass
 
     async def random_msg_task(self):
         await self.wait_until_ready()
@@ -130,12 +142,8 @@ class DDC(discord.Client):
                         if len(random_msg) > 0:
                             await self.send_message(channel, random_msg)
                             await asyncio.sleep(5)
-                        else:
-                            await self.send_message(channel, EMOJI_ON_FAIL)
                     except:
-                        await self.send_message(channel, EMOJI_ON_FAIL)
-                else:
-                    await self.send_message(channel, EMOJI_ON_FAIL)
+                        pass
             else:
                 await asyncio.sleep(5)
 
