@@ -125,8 +125,6 @@ class DDC(discord.Client):
 
             if last_message_user is not None and last_message_user.id == BOT_CLIENT_ID:
                 should_post = False
-
-            print(should_post)
             if should_post:
                 users = User.select()
                 users_array = []
