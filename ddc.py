@@ -104,7 +104,7 @@ class DDC(discord.Client):
         last_message_user = None
         should_post = False
 
-        interval = 2
+        interval = RANDOM_QUOTE_INTERVAL
 
         print("Starting random msg task")
 
@@ -130,7 +130,6 @@ class DDC(discord.Client):
             if should_post:
                 users = User.select()
                 users_array = []
-                interval = RANDOM_QUOTE_INTERVAL
                 last_message_time = datetime.datetime.now()
                 should_post = False
 
@@ -147,18 +146,13 @@ class DDC(discord.Client):
                             if len(random_msg) > 0:
                                 await self.send_message(channel, random_msg)
                                 await asyncio.sleep(5)
-                                print("Posting")
                             else:
-                                print("Sleeping 4")
                                 await asyncio.sleep(5)
                         except:
-                            print("Sleeping 1")
                             await asyncio.sleep(5)
                 except:
-                    print("Sleeping 2")
                     await asyncio.sleep(5)
             else:
-                print("Sleeping 3")
                 await asyncio.sleep(5)
 
 
