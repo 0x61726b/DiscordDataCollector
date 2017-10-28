@@ -77,9 +77,7 @@ class DDC(discord.Client):
     async def cmd_q(self, message, channel):
         try:
             split = message.content.split('{}{} '.format(PREFIX, 'q'))
-
             user_name = split[1]
-            print(user_name)
 
             clients = self.get_all_members()
             target_client = None
