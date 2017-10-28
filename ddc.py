@@ -47,7 +47,7 @@ class DDC(discord.Client):
             random_msg = None
 
             len_messages = len(message_array)
-            max_iterations = 10
+            max_iterations = len_messages - 1
             i = 0
             while unqualified:
                 random_nmb = randint(0, len_messages - 1)
