@@ -76,9 +76,9 @@ class DDC(discord.Client):
         except:
             return ""
 
-    async def cmd_aq(self, message, channel):
+    async def cmd_q(self, message, channel):
         try:
-            split = message.content.split('{}{} '.format(PREFIX, 'aq'))
+            split = message.content.split('{}{} '.format(PREFIX, 'q'))
             user_name = split[1]
 
             clients = self.get_all_members()
@@ -164,7 +164,7 @@ class DDC(discord.Client):
         logger.info("Bot is ready.")
 
         try:
-            await self.change_presence(game=discord.Game(name='Clannad sucks'))
+            await self.change_presence(game=discord.Game(name='Music sucks'))
         except:
             logging.warning("Could not set presence")
     async def on_member_join(self,member):
